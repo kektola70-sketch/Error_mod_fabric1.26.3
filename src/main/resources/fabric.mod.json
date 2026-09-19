@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "error",
+	"version": "${version}",
+	"name": "Error",
+	"description": "Мод Error для Minecraft 26.3 (1.26.3) на Fabric: глитч-блок, осколок ошибки и жезл ошибки.",
+	"authors": [
+		"kektola70-sketch"
+	],
+	"contact": {
+		"homepage": "https://github.com/kektola70-sketch/Error_mod_fabric1.26.3",
+		"sources": "https://github.com/kektola70-sketch/Error_mod_fabric1.26.3",
+		"issues": "https://github.com/kektola70-sketch/Error_mod_fabric1.26.3/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/error/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.errormod.ErrorMod"
+		],
+		"client": [
+			"com.errormod.client.ErrorModClient"
+		]
+	},
+	"mixins": [
+		"error.mixins.json",
+		{
+			"config": "error.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

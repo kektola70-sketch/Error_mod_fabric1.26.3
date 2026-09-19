@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " E ",
+    " E ",
+    " S "
+  ],
+  "key": {
+    "E": "error:error_fragment",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "error:error_wand",
+    "count": 1
+  }
+}

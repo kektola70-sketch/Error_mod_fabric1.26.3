@@ -1,0 +1,89 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+base {
+	// Базовое имя артефакта мода.
+	archivesName = "error"
+}
+
+repositories {
+	// Сюда добавляются репозитории для получения артефактов.
+	// Это нужно только при зависимости от других модов —
+	// Loom сам добавляет репозитории для Minecraft и его библиотек.
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"error" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+dependencies {
+	// Версии меняются в файле gradle.properties
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. Формально необязателен, но почти всегда нужен.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = 25
+}
+
+java {
+	// Loom автоматически подключит sourcesJar к задаче remapSourcesJar и к build,
+	// если она присутствует. Если убрать эту строку, исходники генерироваться не будут.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName"}
+	}
+}
+
+// Итоговый (ремапнутый) jar называется error_26.3.jar
+tasks.named("remapJar") {
+	archiveFileName = "error_${project.minecraft_version}.jar"
+}
+
+tasks.named("remapSourcesJar") {
+	archiveFileName = "error_${project.minecraft_version}-sources.jar"
+}
+
+// Настройка публикации в maven
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+		// Сюда добавляются репозитории для публикации.
+	}
+}

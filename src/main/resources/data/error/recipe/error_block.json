@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "error:error_fragment"
+  },
+  "result": {
+    "id": "error:error_block",
+    "count": 1
+  }
+}

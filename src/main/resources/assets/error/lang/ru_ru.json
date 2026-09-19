@@ -1,0 +1,7 @@
+{
+  "itemGroup.error.error_tab": "Error",
+  "block.error.error_block": "Блок ошибки",
+  "item.error.error_fragment": "Осколок ошибки",
+  "item.error.error_wand": "Жезл ошибки",
+  "message.error.wand_used": "Обнаружен сбой реальности!"
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "error:error_block"
+  ],
+  "result": {
+    "id": "error:error_fragment",
+    "count": 9
+  }
+}

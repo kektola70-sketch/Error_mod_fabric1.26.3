@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "error:block/error_block"
+    }
+  }
+}
