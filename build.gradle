@@ -4,8 +4,13 @@ plugins {
 }
 
 base {
-	// Базовое имя артефакта мода.
-	archivesName = "error"
+	// Базовое имя артефакта: итоговый файл — error_26.3.jar
+	archivesName = "error_${project.minecraft_version}"
+}
+
+// Убираем номер версии мода из имени файла, чтобы получилось ровно error_26.3.jar
+tasks.withType(AbstractArchiveTask).configureEach {
+	archiveVersion = ''
 }
 
 repositories {
@@ -49,8 +54,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom автоматически подключит sourcesJar к задаче remapSourcesJar и к build,
-	// если она присутствует. Если убрать эту строку, исходники генерироваться не будут.
+	// Loom автоматически подключает sourcesJar к сборке, если она объявлена.
+	// Если убрать эту строку, исходники генерироваться не будут.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_25
@@ -64,15 +69,6 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_$projectName"}
 	}
-}
-
-// Итоговый (ремапнутый) jar называется error_26.3.jar
-tasks.named("remapJar") {
-	archiveFileName = "error_${project.minecraft_version}.jar"
-}
-
-tasks.named("remapSourcesJar") {
-	archiveFileName = "error_${project.minecraft_version}-sources.jar"
 }
 
 // Настройка публикации в maven
