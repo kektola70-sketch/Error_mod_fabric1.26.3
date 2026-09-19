@@ -38,17 +38,35 @@ jobs:
           printf '\n```\n' >> /tmp/body.md
           jq -Rs '{body: .}' /tmp/body.md > /tmp/body.json
           gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/body.json > /dev/null
-      - name: list build output
+      - name: runtime smoke test (boot dedicated server with the mod)
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ls -l build/libs/ | tee /tmp/libs.txt
-          printf '### build/libs\n```\n' > /tmp/b.md
-          cat /tmp/libs.txt >> /tmp/b.md
-          printf '\n```\n' >> /tmp/b.md
-          jq -Rs '{body: .}' /tmp/b.md > /tmp/b.json
-          gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/b.json > /dev/null
+          mkdir -p run
+          echo "eula=true" > run/eula.txt
+          echo "level-type=minecraft:flat" > run/server.properties
+          echo "online-mode=false" >> run/server.properties
+          set +e
+          timeout 900 ./gradlew runServer --console=plain --stacktrace < <(printf 'stop\n') 2>&1 | tee /tmp/server.log
+          set -e
+          echo "----- checking startup markers -----"
+          grep -q 'Инициализация мода Error' /tmp/server.log && echo "OK: main entrypoint ran"
+          grep -q 'Блоки зарегистрированы' /tmp/server.log && echo "OK: blocks registered"
+          grep -q 'Предметы и креативная вкладка зарегистрированы' /tmp/server.log && echo "OK: items registered"
+          grep -q 'Загрузка мира — мод Error активен' /tmp/server.log && echo "OK: server mixin applied"
+          grep -qE 'Done \([0-9.]+s\)' /tmp/server.log && echo "OK: server reached Done"
+          {
+            printf '### runtime smoke test\n```\n'
+            grep -nE 'Инициализация мода Error|Блоки зарегистрированы|Предметы и креативная вкладка|Загрузка мира — мод Error|Done \([0-9.]+s\)|Loading [0-9]+ mods|\berror\b.*1\.0\.0|Mixin apply|Caused by|Exception|FAILED' /tmp/server.log | tail -40
+            printf '\n```\n'
+          } > /tmp/s.md
+          jq -Rs '{body: .}' /tmp/s.md > /tmp/s.json
+          gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/s.json > /dev/null
+          grep -qE 'Done \([0-9.]+s\)' /tmp/server.log
+      - name: list build output
+        shell: bash
+        run: ls -l build/libs/
       - name: capture build artifacts
         uses: actions/upload-artifact@v7
         with:
