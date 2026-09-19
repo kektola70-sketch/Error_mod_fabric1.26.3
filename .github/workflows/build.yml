@@ -64,6 +64,25 @@ jobs:
           jq -Rs '{body: .}' /tmp/s.md > /tmp/s.json
           gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/s.json > /dev/null
           grep -qE 'Done \([0-9.]+s\)' /tmp/server.log
+      - name: verify datapack content (recipes, loot tables, tags)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            printf '### datapack diagnostics\n```\n'
+            printf -- '--- lines mentioning error: namespace ---\n'
+            grep -nE "error:(error_block|error_fragment|error_wand)" /tmp/server.log | tail -20
+            printf -- '--- recipe/loot/tag problems (should be empty) ---\n'
+            grep -niE "(couldn't parse|failed to (load|parse)|invalid|missing).*(recipe|loot|tag|advancement)|(recipe|loot table|tag).*(error:)" /tmp/server.log | tail -25
+            printf -- '--- loaded recipe count ---\n'
+            grep -niE "Loaded [0-9]+ recipes|recipes" /tmp/server.log | tail -5
+            printf '\n```\n'
+          } > /tmp/d.md
+          jq -Rs '{body: .}' /tmp/d.md > /tmp/d.json
+          gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/d.json > /dev/null
+          # Провал, если Minecraft ругается на наши рецепты/таблицы лута
+          ! grep -niE "(couldn't parse|failed to (load|parse)).*error:" /tmp/server.log
       - name: list build output
         shell: bash
         run: ls -l build/libs/
