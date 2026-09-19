@@ -38,6 +38,17 @@ jobs:
           printf '\n```\n' >> /tmp/body.md
           jq -Rs '{body: .}' /tmp/body.md > /tmp/body.json
           gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/body.json > /dev/null
+      - name: list build output
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l build/libs/ | tee /tmp/libs.txt
+          printf '### build/libs\n```\n' > /tmp/b.md
+          cat /tmp/libs.txt >> /tmp/b.md
+          printf '\n```\n' >> /tmp/b.md
+          jq -Rs '{body: .}' /tmp/b.md > /tmp/b.json
+          gh api -X POST "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" --input /tmp/b.json > /dev/null
       - name: capture build artifacts
         uses: actions/upload-artifact@v7
         with:
